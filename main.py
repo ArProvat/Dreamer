@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.services.three_story_overview.three_story_overview_router import router as three_stroy_router
 
 
 
@@ -15,6 +16,8 @@ app.add_middleware(
     allow_headers=["*"]
     )
 
+
+app.include_router(three_stroy_router,prefix='/v1',tags=["Three_story_router"])
 
 @app.get('/' ,tags=['health'])
 async def health():
