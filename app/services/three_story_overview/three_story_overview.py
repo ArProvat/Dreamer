@@ -3,30 +3,28 @@ from google import genai
 from app.config.config import settings
 from app.prompt.prompt import story_overview
 
-class story_overview:
+class StoryGenerator:
     def __init__(self):
-        self.client = genai.Client(settings.GOOGLE_API_KEY)
+        self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
         
-    async def generate_three_story_overview(self,Story_description:dict):
-        """ Generate three genre story overview of the given idea """
+    def generate_three_story_overview(self, story_description: dict):
         try:
-            prompt= story_overview.format(Story_description)
+            formatted_prompt = story_overview.format(**story_description)
 
             response = self.client.models.generate_content(
                 model='gemini-2.0-flash-exp',
-                prompt=prompt
-                )
+                contents=formatted_prompt
+            )
+            
             response_text = response.text.strip()
+            
             if response_text.startswith('```json'):
                 response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
             if response_text.endswith('```'):
                 response_text = response_text[:-3]
                 
-            story_data = json.loads(response_text.strip())
-                
-            return story_data
+            return json.loads(response_text.strip())
         except Exception as e:
+            print(f"Error: {e}")
             raise e
         

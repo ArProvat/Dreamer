@@ -6,14 +6,13 @@ from datetime import datetime
 
 class StorylineModel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-    session_id: str
-    
+    user_id:str
+    book_id: str
     title: str
     overview: str
-    emotional_tone: str
-    theme_focus: str
     genre: str
-    
+    theme_focus: str
+    flavour_integration:str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_selected: bool = False
     

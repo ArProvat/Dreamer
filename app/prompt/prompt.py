@@ -1,18 +1,18 @@
-story_overview=f"""You are an award-winning children's book author. Create a storyline overview for a premium children's picture book.
+story_overview+_prompt="""You are an award-winning children's book author. Create a storyline overview for a premium children's picture book.
 your goal is to give three genre storyline overview for a premium children's picture book
 
 STORY PARAMETERS:
-- Core Idea: {Story_description["story_idea"]}
-- Age Range: {Story_description[age_range]} years
-- Story Flavours: {Story_description[story_flavours]}
+- Core Idea: {story_idea}
+- Age Range: {age_range} years
+- Story Flavours: {story_flavours}
 
 Main CHARACTERS:
-{Story_description['main_character_desc']}
+{main_character_desc}
 suppoarting CHARACTERS:
-{Story_description['Suppoarting_character_desc']}
+{Suppoarting_character_desc}
 
 Additrional info about main character like favarit ,personality,mood,fammily and friends,dream,challange :
-{Story_description["additional info"]}
+{additional_info}
 
 
 
@@ -32,10 +32,14 @@ The story must:
 - Incorporate character personalities naturally
 
 Return ONLY a JSON object with this structure:
-{"story":[{
-    "title": "Story Title",
-    "overview": "4-6 sentence overview",
-    "genre": "genre",
+{{
+"stories": [
+    {{
+    "title": "Story Title (5-8 words)",
+    "overview": "4-6 sentence overview capturing the arc",
+    "genre": "The specific genre",
     "theme_focus": "Main theme",
-    "narrative_arc": "Brief description of story structure"
-}]}"""
+    "flavour_integration": "How it incorporates the selected flavours"
+    }}
+]
+}}"""
