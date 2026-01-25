@@ -10,10 +10,9 @@ from ...agents.task import (
     create_writing_task,
     create_art_direction_task,
     create_prompt_generation_task,
-    create_quality_validation_task
 )
 from ...DB.mongoDB.mongoDB import MongoManager
-from services.image_generator import generate_all_book_images
+#from services.image_generator import generate_all_book_images
 
 _mongoManager = MongoManager()
 
@@ -87,7 +86,7 @@ async def orchestrate_book_generation(
         print(f"   ✓ Style: {illustration_style}")
         
         # Update book status
-        await update_book_status(book_id, BookStatus.PROCESSING, 5, "Initializing creative team...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 5, "Initializing creative team...")
         
         print("\n🤖 Step 2: Creating AI agents...")
         
@@ -98,7 +97,7 @@ async def orchestrate_book_generation(
         print(f"   ✓ Art Director agent ready")
         print(f"   ✓ Prompt Engineer agent ready")
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 10, "Creative team assembled...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 10, "Creative team assembled...")
         
         print("\n📐 Step 3: Story planning phase...")
         
@@ -117,7 +116,7 @@ async def orchestrate_book_generation(
             verbose=True
         )
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 15, "Planning story structure...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 15, "Planning story structure...")
         
         planning_result = planning_crew.kickoff()
         planning_output = clean_json_output(planning_result)
@@ -126,12 +125,12 @@ async def orchestrate_book_generation(
         print(f"   ✓ Pages: {planning_output.get('book_structure', {}).get('total_pages', 'N/A')}")
         
         # Store planning data
-        await update_book(book_id, {
+        ''' await update_book(book_id, {
             "story_data": {
                 "planning": planning_output,
                 "storyline": storyline_data
             }
-        })
+        })'''
         
         print("\n✍️  Step 4: Writing story text...")
         
@@ -151,7 +150,7 @@ async def orchestrate_book_generation(
             verbose=True
         )
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 30, "Writing your story...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 30, "Writing your story...")
         
         writing_result = writing_crew.kickoff()
         writing_output = clean_json_output(writing_result)
@@ -160,10 +159,10 @@ async def orchestrate_book_generation(
         print(f"   ✓ Pages with text: {len(writing_output.get('pages', []))}")
         
         # Update book with story text
-        await update_book(book_id, {
+        '''await update_book(book_id, {
             "story_data.writing": writing_output
         })
-        
+        '''
         print("\n🎨 Step 5: Designing visual scenes...")
         
         art_direction_task = create_art_direction_task(
@@ -180,7 +179,7 @@ async def orchestrate_book_generation(
             verbose=True
         )
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 45, "Designing visual scenes...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 45, "Designing visual scenes...")
         
         art_result = art_crew.kickoff()
         art_output = clean_json_output(art_result)
@@ -189,10 +188,10 @@ async def orchestrate_book_generation(
         print(f"   ✓ Art direction complete")
         
         # Update book with art direction
-        await update_book(book_id, {
+        '''await update_book(book_id, {
             "story_data.art_direction": art_output
         })
-        
+        '''
         # ==================== STEP 6: PROMPT GENERATION PHASE ====================
         print("\n🖼️  Step 6: Generating image prompts...")
         
@@ -212,7 +211,7 @@ async def orchestrate_book_generation(
             verbose=True
         )
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 55, "Creating image generation prompts...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 55, "Creating image generation prompts...")
         
         prompt_result = prompt_crew.kickoff()
         prompt_output = clean_json_output(prompt_result)
@@ -221,14 +220,14 @@ async def orchestrate_book_generation(
         print(f"   ✓ Ready for image generation")
         
         # Update book with prompts
-        await update_book(book_id, {
+        '''await update_book(book_id, {
             "story_data.image_prompts": prompt_output
         })
-        
+        '''
         # ==================== IMAGE GENERATION PHASE ====================
         print("\n🎨 Step 7: Generating illustrations...")
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 60, "Creating beautiful illustrations...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 60, "Creating beautiful illustrations...")
         
         # Get character reference images if available
         character_references = []
@@ -238,7 +237,7 @@ async def orchestrate_book_generation(
                     character_references.append(char["reference_image_url"])
         
         # Generate all images sequentially with consistency checks
-        image_results = await generate_all_book_images(
+        '''image_results = await generate_all_book_images(
             book_id=book_id,
             prompt_data=prompt_output,
             writing_data=writing_output,
@@ -247,7 +246,7 @@ async def orchestrate_book_generation(
             progress_callback=lambda progress, msg: update_book_status(
                 book_id, BookStatus.PROCESSING, 60 + int(progress * 0.3), msg
             )
-        )
+        )'''
         
         print(f"   ✓ All illustrations generated")
         print(f"   ✓ Images stored in S3")
@@ -255,40 +254,13 @@ async def orchestrate_book_generation(
         # ==================== STEP 8: VALIDATION PHASE ====================
         print("\n✅ Step 8: Quality validation...")
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 92, "Validating quality...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 92, "Validating quality...")
         
-        validation_task = create_quality_validation_task(
-            validator=agents["validator"],
-            generated_images=json.dumps(image_results, indent=2),
-            story_text=json.dumps(writing_output, indent=2),
-            art_direction=json.dumps(art_output, indent=2)
-        )
-        
-        validation_crew = Crew(
-            agents=[agents["validator"]],
-            tasks=[validation_task],
-            process=Process.sequential,
-            verbose=True
-        )
-        
-        validation_result = validation_crew.kickoff()
-        validation_output = clean_json_output(validation_result)
-        
-        print(f"   ✓ Quality validation complete")
-        print(f"   ✓ Overall quality score: {validation_output.get('scores', {}).get('overall_quality', 'N/A')}")
-        
-        # Check if revisions needed
-        if validation_output.get("overall_status") == "needs_revision":
-            print("\n⚠️  Revisions needed, handling...")
-            revision_results = await handle_revisions(
-                book_id, validation_output, agents, image_results
-            )
-            image_results = revision_results
         
         # ==================== STEP 9: FINALIZATION ====================
         print("\n🎉 Step 9: Finalizing book...")
         
-        await update_book_status(book_id, BookStatus.PROCESSING, 95, "Finalizing your book...")
+        #await update_book_status(book_id, BookStatus.PROCESSING, 95, "Finalizing your book...")
         
         # Store all page data
         pages_data = []
@@ -298,14 +270,14 @@ async def orchestrate_book_generation(
             # Get corresponding text
             page_text = next(
                 (p.get("text", "") for p in writing_output.get("pages", []) 
-                 if p.get("page_number") == page_num),
+                if p.get("page_number") == page_num),
                 ""
             )
             
             # Get image result
-            image_info = image_results.get(str(page_num), {})
+            #image_info = image_results.get(str(page_num), {})
             
-            page_data = {
+            '''page_data = {
                 "page_number": page_num,
                 "page_type": page_prompt.get("page_type", "story"),
                 "text_content": page_text,
@@ -319,18 +291,18 @@ async def orchestrate_book_generation(
                 "is_approved": image_info.get("approved", False),
                 "generation_attempts": image_info.get("attempts", 1)
             }
-            
-            pages_data.append(page_data)
-            await add_book_page(book_id, page_data)
+            '''
+            #pages_data.append(page_data)
+            #await add_book_page(book_id, page_data)
         
         # Mark book as complete
-        await update_book(book_id, {
+        '''await update_book(book_id, {
             "is_preview_ready": True,
             "completed_at": datetime.utcnow()
         })
         
         await update_book_status(book_id, BookStatus.COMPLETED, 100, "Your book is ready!")
-        
+        '''
         print(f"\n✨ Book generation complete!")
         print(f"   Book ID: {book_id}")
         print(f"   Total pages: {len(pages_data)}")
@@ -340,7 +312,6 @@ async def orchestrate_book_generation(
             "book_id": book_id,
             "status": "completed",
             "pages": pages_data,
-            "validation": validation_output,
             "metadata": {
                 "title": storyline.title,
                 "age_range": session.age_range,
@@ -352,7 +323,7 @@ async def orchestrate_book_generation(
         
     except Exception as e:
         print(f"\n❌ Error during book generation: {str(e)}")
-        await update_book_status(book_id, BookStatus.FAILED, 0, f"Error: {str(e)}")
+        #await update_book_status(book_id, BookStatus.FAILED, 0, f"Error: {str(e)}")
         raise
 
 
@@ -392,7 +363,7 @@ def clean_json_output(result: Any) -> Dict:
         
         return {"error": "Failed to parse JSON output", "raw": str(result)[:500]}
 
-
+'''
 async def handle_revisions(
     book_id: str,
     validation_output: Dict,
@@ -429,10 +400,10 @@ async def handle_revisions(
     
     return current_images
 
-
+'''
 # ==================== QUICK START FUNCTION ====================
 
-async def quick_start_book_generation(
+'''async def quick_start_book_generation(
     email: str,
     story_idea: str,
     child_name: str,
@@ -522,10 +493,10 @@ async def quick_start_book_generation(
     )
     
     return result
-
+'''
 
 # ==================== USAGE EXAMPLE ====================
-
+'''
 if __name__ == "__main__":
     import asyncio
     
@@ -544,3 +515,4 @@ if __name__ == "__main__":
         print(f"Pages: {len(result['pages'])}")
     
     asyncio.run(main())
+    '''

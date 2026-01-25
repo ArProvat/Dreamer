@@ -3,9 +3,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.three_story_overview.three_story_overview_router import router as three_stroy_router
 
-
-
-
 app = FastAPI(title="Dreamer AI API", version="1.0.0")
 
 app.add_middleware(

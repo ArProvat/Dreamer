@@ -1,16 +1,16 @@
-story_overview_prompt = f"""You are an award-winning children's book author. Create THREE different storyline overviews for a premium children's picture book.
+story_overview_prompt = """You are an award-winning children's book author. Create THREE different storyline overviews for a premium children's picture book.
 Your goal is to give three DIFFERENT genre storyline overviews.
 
 STORY PARAMETERS:
-- Core Idea: {story_description.get('story_idea', 'An adventure story')}
-- Age Range: {story_description.get('age_range', '3-5')} years
-- Story Flavours: {', '.join(story_description.get('story_flavours', []))}
+- Core Idea: {core_idea}
+- Age Range: {age_range} years
+- Story Flavours: {story_flavours}
 
 MAIN CHARACTERS:
-{main_char_desc if main_char_desc else 'No main characters specified'}
+{main_char_desc}
 
 SUPPORTING CHARACTERS:
-{supporting_char_desc if supporting_char_desc else 'No supporting characters specified'}
+{supporting_char_desc}
 
 ADDITIONAL INFO ABOUT MAIN CHARACTER (personality, mood, family, dreams, challenges):
 {additional_info_str}

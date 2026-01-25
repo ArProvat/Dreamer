@@ -19,7 +19,7 @@ class SessionModel(BaseModel):
     # Session data
     story_idea: Optional[str] = None
     age_range: Optional[str] = None
-    story_flavours: Optional[List[str]] = None
+    story_flavours: Optional[list[str]] = None
     main_characters: Optional[List[Dict[str, Any]]] = None
     main_characters_image_url: Optional[List[str]] = None
     supporting_characters: Optional[List[Dict[str, Any]]] = None
@@ -48,22 +48,15 @@ class StorylineModel(BaseModel):
         populate_by_name = True
 class BookPageModel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    book_id: str
+    session_id: str
     page_number: int
     page_type: str  # cover, dedication, story, back
-    
-    # Content
     text_content: Optional[str] = None
     image_prompt: Optional[str] = None
     art_direction: Optional[str] = None
     
-    # Image URLs
     image_url: Optional[str] = None
-    
-    # Generation metadata
-    generation_attempts: int = 0
-    is_approved: bool = False
-    safety_check_passed: bool = False
-    consistency_score: Optional[int] = None  # 0-100
     
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
