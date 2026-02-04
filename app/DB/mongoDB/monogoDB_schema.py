@@ -1,13 +1,7 @@
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel,Field
-import uuid
-from datetime import datetime
-
-
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 class SessionModel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
@@ -19,7 +13,7 @@ class SessionModel(BaseModel):
     # Session data
     story_idea: Optional[str] = None
     age_range: Optional[str] = None
-    story_flavours: Optional[list[str]] = None
+    story_flavours: Optional[List[str]] = None
     main_characters: Optional[List[Dict[str, Any]]] = None
     main_characters_image_url: Optional[List[str]] = None
     supporting_characters: Optional[List[Dict[str, Any]]] = None
@@ -27,6 +21,7 @@ class SessionModel(BaseModel):
     character_personality: Optional[Dict[str, Any]] = None
     illustration_style: Optional[str] = None
     dedication: Optional[str] = None
+    story_line: Optional[List[str]] = None 
     
     class Config:
         populate_by_name = True
@@ -34,8 +29,6 @@ class SessionModel(BaseModel):
 
 class StorylineModel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-    book_id: str
-    user_id: str
     session_id: str
     title: str
     overview: str
@@ -46,20 +39,35 @@ class StorylineModel(BaseModel):
     
     class Config:
         populate_by_name = True
+
+
 class BookPageModel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     book_id: str
-    session_id: str
     page_number: int
     page_type: str  # cover, dedication, story, back
     text_content: Optional[str] = None
     image_prompt: Optional[str] = None
     art_direction: Optional[str] = None
-    
     image_url: Optional[str] = None
     
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
+    class Config:
+        populate_by_name = True
+
+
+class Books(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+    session_id: str
+    storyline_id: Optional[str] = None  # ✅ Add link to storyline
+    book_title: str
+    page_ids: List[str] = []  # ✅ Renamed to plural, added default
+    status: str = "draft"  # draft, generating, completed, published
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
     class Config:
         populate_by_name = True
