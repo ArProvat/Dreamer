@@ -354,23 +354,3 @@ def clean_json_output(result: Any) -> Dict:
             pass
         
         return {"error": "Failed to parse JSON output", "raw": str(result)[:500]}
-
-
-    import asyncio
-    
-    # Example: Full book generation
-    async def main():
-        result = await quick_start_book_generation(
-            email="parent@example.com",
-            story_idea="A brave girl discovers magic in her grandmother's garden",
-            child_name="Emma",
-            age_range="4-6",
-            illustration_style="Soft Pastel Storybook"
-        )
-        
-        print(f"\n✨ Book created successfully!")
-        print(f"Book ID: {result['book_id']}")
-        print(f"Pages: {len(result['pages'])}")
-    
-    asyncio.run(main())
-    '''
